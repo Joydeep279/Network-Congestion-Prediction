@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Traffic Congestion Prediction</h2>
+    <form id="predict-form">
+        <!-- Add all input fields for features, including weather and road_type -->
+        <div class="row">
+            <div class="col-md-4">
+                <label>Duration</label>
+                <input type="number" name="duration" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label>Src Bytes</label>
+                <input type="number" name="src_bytes" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label>Dst Bytes</label>
+                <input type="number" name="dst_bytes" class="form-control" required>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-4">
+                <label>Packet Count</label>
+                <input type="number" name="packet_count" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label>Service Count</label>
+                <input type="number" name="service_count" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label>Hour</label>
+                <input type="number" name="hour" class="form-control" min="0" max="23" required>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-4">
+                <label>Protocol</label>
+                <select name="protocol" class="form-control" required>
+                    <option value="TCP">TCP</option>
+                    <option value="UDP">UDP</option>
+                    <option value="ICMP">ICMP</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label>Service</label>
+                <select name="service" class="form-control" required>
+                    <option value="http">http</option>
+                    <option value="ftp">ftp</option>
+                    <option value="ssh">ssh</option>
+                    <option value="dns">dns</option>
+                    <option value="smtp">smtp</option>
+                    <option value="ntp">ntp</option>
+                    <option value="other">other</option>
+                    <option value="none">none (ICMP)</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Predict</button>
+    </form>
+    <div id="result" class="mt-3"></div>
+    <div class="mt-5">
+        <h4>Feature Importance</h4>
+        <canvas id="featureImportanceChart" height="100"></canvas>
+    </div>
+</div>
+{% endblock %}

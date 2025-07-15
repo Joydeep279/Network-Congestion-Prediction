@@ -1,0 +1,23 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f8f9fa;
+}
+
+.card {
+    border: none;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-title {
+    font-weight: 500;
+}
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
