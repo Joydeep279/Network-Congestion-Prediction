@@ -1,9 +1,0 @@
-feature,importance
-duration,1.9047552589477905e-13
-src_bytes,5.472973245954875e-14
-dst_bytes,1.0713099097559115e-13
-packet_count,0.9999999999996474
-hour,0.0
-protocol_UDP,1.7212540943232533e-16
-service_smtp,0.0
-service_ssh,0.0

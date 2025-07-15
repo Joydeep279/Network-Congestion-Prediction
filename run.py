@@ -1,73 +1,94 @@
-import numpy as np
-import pandas as pd
+import argparse
+import os
+import subprocess
+import sys
 
-from core.trainer import TrafficModelTrainer
+from loguru import logger
 
 
-def generate_synthetic_traffic(n=50000):
-    peak_hours = [7, 8, 9, 17, 18, 19]
-    protocols = ["TCP", "UDP", "ICMP"]
-    services = ["http", "ftp", "ssh", "dns", "smtp", "other"]
-    data = []
-
-    for _ in range(n):
-        hour = np.random.randint(0, 24)
-        is_peak = hour in peak_hours
-        protocol = np.random.choice(protocols, p=[0.7, 0.2, 0.1])
-        service = np.random.choice(services, p=[0.5, 0.1, 0.1, 0.1, 0.1, 0.1])
-
-        duration = np.random.exponential(scale=8 if is_peak else 4)
-        src_bytes = int(np.random.normal(loc=5000 if is_peak else 1000, scale=800))
-        dst_bytes = int(np.random.normal(loc=3000 if is_peak else 700, scale=500))
-        packet_count = np.random.poisson(lam=60 if is_peak else 20)
-        service_count = np.random.poisson(lam=3)
-
-        congestion = 1 if (is_peak and packet_count > 50) else 0
-
-        data.append(
-            [
-                duration,
-                max(0, src_bytes),
-                max(0, dst_bytes),
-                packet_count,
-                service_count,
-                hour,
-                protocol,
-                service,
-                congestion,
-            ]
+def run_data_generation():
+    """Runs the data generation script."""
+    logger.info("▶️ Starting data generation...")
+    try:
+        subprocess.run([sys.executable, "generate_data.py"], check=True)
+        logger.success("✅ Data generation complete.")
+    except FileNotFoundError:
+        logger.error(
+            "Could not find generate_data.py. Make sure you are in the project root."
         )
+        sys.exit(1)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Data generation failed with exit code {e.returncode}.")
+        sys.exit(1)
 
-    df = pd.DataFrame(
-        data,
-        columns=pd.Index(
-            [
-                "duration",
-                "src_bytes",
-                "dst_bytes",
-                "packet_count",
-                "service_count",
-                "hour",
-                "protocol",
-                "service",
-                "congestion",
-            ]
+
+def run_training():
+    """Runs the model training script."""
+    logger.info("▶️ Starting model training...")
+    try:
+        subprocess.run([sys.executable, "train.py"], check=True)
+        logger.success("✅ Model training complete.")
+    except FileNotFoundError:
+        logger.error("Could not find train.py. Make sure you are in the project root.")
+        sys.exit(1)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Model training failed with exit code {e.returncode}.")
+        sys.exit(1)
+
+
+def run_web_app():
+    """Runs the Flask web application."""
+    logger.info("▶️ Starting Flask web server...")
+    logger.info("Visit http://127.0.0.1:5000/dashboard in your browser.")
+    logger.info("Press CTRL+C to stop the server.")
+    try:
+        env = os.environ.copy()
+        env["FLASK_APP"] = "web/app.py"
+        env["FLASK_ENV"] = "development"
+        subprocess.run(
+            [sys.executable, "-m", "flask", "run"],
+            check=True,
+            env=env,
+        )
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Failed to start web app with exit code {e.returncode}.")
+        sys.exit(1)
+    except KeyboardInterrupt:
+        logger.info("Web server stopped.")
+
+
+def main():
+    """Main execution function with command-line parsing."""
+    parser = argparse.ArgumentParser(
+        description="Run pipeline for the Traffic Congestion App.",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument(
+        "step",
+        nargs="?",
+        default="all",
+        choices=["data", "train", "web", "all"],
+        help=(
+            "Choose which part of the pipeline to run:\n"
+            "  data  - Generate synthetic data\n"
+            "  train - Train the prediction model\n"
+            "  web   - Run the Flask web application\n"
+            "  all   - (Default) Run all steps in order: data -> train -> web"
         ),
     )
-    return df
+    args = parser.parse_args()
+
+    if args.step == "all":
+        run_data_generation()
+        run_training()
+        run_web_app()
+    elif args.step == "data":
+        run_data_generation()
+    elif args.step == "train":
+        run_training()
+    elif args.step == "web":
+        run_web_app()
 
 
 if __name__ == "__main__":
-    print("🔄 Generating data...")
-    df = generate_synthetic_traffic()
-    df.to_csv("synthetic_network_data.csv", index=False)
-    print("✅ Dataset created!")
-
-    print("🔄 Training model...")
-    trainer = TrafficModelTrainer()
-    trainer.train("synthetic_network_data.csv")
-    print("✅ Model trained!")
-    print("\n🚀 Now run these commands to start the web app:")
-    print("export FLASK_APP=web/app.py")
-    print("export FLASK_ENV=development")
-    print("flask run")
+    main()

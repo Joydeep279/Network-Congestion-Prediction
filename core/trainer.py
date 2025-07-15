@@ -139,6 +139,10 @@ class TrafficModelTrainer:
 
     def _save_pipeline(self) -> None:
         """Save the entire pipeline to disk"""
+        if self.pipeline is None:
+            logger.warning("Attempted to save a pipeline that has not been trained.")
+            return
+
         try:
             model_dir = Path(self.model_path).parent
             model_dir.mkdir(parents=True, exist_ok=True)

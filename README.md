@@ -86,6 +86,43 @@ set FLASK_ENV=development
 flask run
 ```
 
+## 📊 Sample Input Data
+
+The model expects network traffic data with the following fields:
+
+```json
+{
+    "duration": 10.5,        // Connection duration in seconds
+    "src_bytes": 5120,       // Bytes sent from source to destination
+    "dst_bytes": 2400,       // Bytes sent from destination to source
+    "packet_count": 65,      // Total number of packets in the connection
+    "hour": 9,              // Hour of the day (0-23)
+    "protocol": "TCP",       // Network protocol (TCP, UDP, ICMP)
+    "service": "http"        // Network service (http, ftp, ssh, etc.)
+}
+```
+
+### Field Descriptions
+
+| Field | Type | Description | Valid Range/Values |
+|-------|------|-------------|-------------------|
+| duration | float | Connection duration in seconds | > 0 |
+| src_bytes | integer | Data volume sent by source | ≥ 0 |
+| dst_bytes | integer | Data volume received by destination | ≥ 0 |
+| packet_count | integer | Number of packets in connection | > 0 |
+| hour | integer | Hour when connection occurred | 0-23 |
+| protocol | string | Network protocol used | "TCP", "UDP", "ICMP" |
+| service | string | Application service type | "http", "ftp", "ssh", "smtp", "dns", etc. |
+
+### Common Service Types
+- **Web Services**: http, https
+- **File Transfer**: ftp, sftp
+- **Email**: smtp, pop3, imap
+- **Remote Access**: ssh, telnet
+- **Name Resolution**: dns
+- **Database**: mysql, postgresql
+- **Streaming**: rtsp, rtp
+
 ## Usage
 
 ### Web Dashboard
@@ -114,6 +151,39 @@ curl -X POST http://127.0.0.1:5000/api/predict \
   "congestion": true,
   "probability": 0.87
 }
+```
+
+**Example using Python requests:**
+```python
+import requests
+import json
+
+# API endpoint
+url = "http://127.0.0.1:5000/api/predict"
+
+# Sample network traffic data
+data = {
+    "duration": 10.5,
+    "src_bytes": 5120,
+    "dst_bytes": 2400,
+    "packet_count": 65,
+    "hour": 9,
+    "protocol": "TCP",
+    "service": "http"
+}
+
+# Make prediction request
+response = requests.post(url, json=data)
+result = response.json()
+
+print(f"Congestion Predicted: {result['congestion']}")
+print(f"Probability: {result['probability']:.2f}")
+```
+
+**Expected Output:**
+```
+Congestion Predicted: True
+Probability: 0.87
 ```
 
 ## ⚙️ Configuration

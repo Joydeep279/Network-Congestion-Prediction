@@ -6,7 +6,12 @@ document.addEventListener("DOMContentLoaded", function () {
         resultDiv.innerHTML = "<span>Loading...</span>";
         const formData = new FormData(form);
         const data = {};
-        formData.forEach((value, key) => { data[key] = value; });
+        formData.forEach((value, key) => { 
+            // Convert string numbers to actual numbers
+            data[key] = ["duration", "src_bytes", "dst_bytes", "packet_count", "service_count", "hour"].includes(key) 
+                ? Number(value) 
+                : value; 
+        });
         try {
             const response = await fetch("/api/predict", {
                 method: "POST",
@@ -15,30 +20,19 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             const result = await response.json();
             if (result.error) {
-                resultDiv.innerHTML = `<span style='color:red;'>${result.error}</span>`;
+                resultDiv.innerHTML = `<div class="alert alert-danger">${result.error}</div>`;
             } else {
-                resultDiv.innerHTML = `<b>Prediction:</b> ${result.prediction} <br/><b>Probability:</b> ${result.probability}`;
+                const congestionText = result.congestion ? "Yes" : "No";
+                const probability = (result.probability * 100).toFixed(2);
+                resultDiv.innerHTML = `
+                    <div class="alert ${result.congestion ? 'alert-warning' : 'alert-success'}">
+                        <h4>Prediction Results:</h4>
+                        <p><b>Congestion Predicted:</b> ${congestionText}</p>
+                        <p><b>Probability:</b> ${probability}%</p>
+                    </div>`;
             }
         } catch (err) {
-            resultDiv.innerHTML = `<span style='color:red;'>${err}</span>`;
+            resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${err.message}</div>`;
         }
     });
-    // Feature importance chart
-    fetch("/api/feature_importance")
-        .then(res => res.json())
-        .then(data => {
-            const ctx = document.getElementById("featureImportanceChart").getContext("2d");
-            new Chart(ctx, {
-                type: "bar",
-                data: {
-                    labels: data.map(d => d.feature),
-                    datasets: [{
-                        label: "Importance",
-                        data: data.map(d => d.importance),
-                        backgroundColor: "rgba(54, 162, 235, 0.5)",
-                    }]
-                },
-                options: { responsive: true }
-            });
-        });
 });
