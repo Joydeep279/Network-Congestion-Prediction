@@ -24,6 +24,12 @@ predictor = TrafficPredictor()
 email_service = EmailService()
 
 
+@app.route("/")
+def index():
+    """Render the introduction page."""
+    return render_template("index.html")
+
+
 @app.route("/api/predict", methods=["POST"])
 def api_predict():
     try:

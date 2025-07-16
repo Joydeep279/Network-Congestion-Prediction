@@ -2,22 +2,26 @@
 
 A machine learning application to predict network traffic congestion in real-time. Built with Python, Scikit-learn, and Flask, it features a complete ML pipeline from data generation to prediction via a REST API and an interactive web dashboard.
 
-![Dashboard Screenshot](https://i.imgur.com/your-screenshot.png) <!-- Placeholder: Replace with a real screenshot of your dashboard -->
+![Introduction Page](./rootPageSS.png)
+![Prediction Dashboard](./dashboardScreenShot.png)
 
 ## ✨ Features
 
-- **End-to-End ML Pipeline**: Unified preprocessing (scaling, one-hot encoding) and modeling using a robust `sklearn.Pipeline`.
-- **Config-Driven Training**: Model hyperparameters and pipeline settings are managed centrally via `core/config.yaml`.
-- **Hyperparameter Tuning**: Integrated `GridSearchCV` for automated model optimization.
-- **Realistic Synthetic Data**: A CLI script (`generate_data.py`) that creates plausible network traffic data, linking services to their common protocols.
-- **REST API**: A robust Flask API for serving predictions (`/api/predict`).
-- **Interactive Dashboard**: A web UI built with Bootstrap and Chart.js to make live predictions and visualize results.
+- **User-Friendly Interface**: A welcoming introduction page and an intuitive dashboard for live predictions.
+- **One-Command Pipeline**: Run data generation, model training, and the web app with a single command (`python run.py`).
+- **Interactive Dashboard**: Make live predictions and visualize results with a modern Bootstrap UI and a responsive donut chart (Chart.js).
+- **REST API**: Predict congestion via a simple HTTP POST request.
+- **Config-Driven Training**: All model and pipeline settings are managed in `core/config.yaml`.
+- **Hyperparameter Tuning**: Automated model optimization with `GridSearchCV`.
+- **Synthetic Data Generation**: Easily generate realistic network traffic data for experimentation.
+- **Optional Email Alerts**: Get notified when high-probability congestion is detected (configurable via environment variables).
+- **Unit Tests**: Includes a suite of tests for core logic and API endpoints.
 
 ## 📂 Project Structure
 
 ```
 ├── assets/
-│   ├── datasets/       # Stores the generated network_traffic.csv
+│   ├── datasets/       # Stores synthetic_network_data.csv
 │   └── models/         # Stores the trained model pipeline (gb_model.pkl)
 ├── core/
 │   ├── config.yaml     # Model & pipeline configuration
@@ -26,65 +30,41 @@ A machine learning application to predict network traffic congestion in real-tim
 ├── tests/                # Unit and integration tests
 ├── web/
 │   ├── app.py          # Flask application (API and UI routes)
+│   ├── email_service.py # Email alert logic
 │   ├── static/         # CSS and JS files
 │   └── templates/      # HTML templates
-├── generate_data.py      # CLI script for generating synthetic data
-├── train.py              # Script to execute model training
+├── run.py                # Main script to run the pipeline and web app
+├── train.py              # Script to execute model training (used by run.py)
+├── generate_data.py      # Script for generating synthetic data (used by run.py)
 └── requirements.txt
 ```
 
-## 🚀 Local Development Setup
-
-Follow these steps to get the project running on your local machine.
+## 🚀 Quickstart
 
 ### 1. Prerequisites
 - Python 3.9+
 
-### 2. Setup Virtual Environment
-Create and activate a virtual environment.
+### 2. Setup & Run
+
 ```bash
-# Create the virtual environment
+# Create and activate a virtual environment
 python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Activate it (macOS/Linux)
-source .venv/bin/activate
-
-# Or on Windows (PowerShell)
-.venv\Scripts\Activate.ps1
-```
-
-### 3. Install Dependencies
-Install all required packages.
-```bash
+# Install dependencies
 pip install -r requirements.txt
+
+# Run the full pipeline (data generation, training, web app)
+python run.py
 ```
 
-### 4. Generate Data
-Run the data generation script. This will create `assets/datasets/network_traffic.csv`.
-```bash
-python generate_data.py
-```
+The application will be available at [http://127.0.0.1:5000](http://127.0.0.1:5000), with the dashboard at the `/dashboard` route.
 
-### 5. Train the Model
-Run the training script. This reads the configuration from `core/config.yaml`, trains the model, and saves the entire pipeline to `assets/models/gb_model.pkl`.
-```bash
-python train.py
-```
-
-### 6. Run the Web App
-Start the Flask server.
-```bash
-# Set Flask environment variables (macOS/Linux)
-export FLASK_APP=web/app.py
-export FLASK_ENV=development
-
-# Or on Windows
-set FLASK_APP=web/app.py
-set FLASK_ENV=development
-
-# Run the app
-flask run
-```
+**Advanced:**  
+You can run individual steps:
+- `python run.py data` – Only generate data
+- `python run.py train` – Only train the model
+- `python run.py web` – Only start the web app
 
 ## 📊 Sample Input Data
 
@@ -92,46 +72,35 @@ The model expects network traffic data with the following fields:
 
 ```json
 {
-    "duration": 10.5,        // Connection duration in seconds
-    "src_bytes": 5120,       // Bytes sent from source to destination
-    "dst_bytes": 2400,       // Bytes sent from destination to source
-    "packet_count": 65,      // Total number of packets in the connection
-    "hour": 9,              // Hour of the day (0-23)
-    "protocol": "TCP",       // Network protocol (TCP, UDP, ICMP)
-    "service": "http"        // Network service (http, ftp, ssh, etc.)
+    "duration": 10.5,
+    "src_bytes": 5120,
+    "dst_bytes": 2400,
+    "packet_count": 65,
+    "hour": 9,
+    "protocol": "TCP",
+    "service": "http"
 }
 ```
 
-### Field Descriptions
+| Field         | Type    | Description                              | Valid Values         |
+|---------------|---------|------------------------------------------|---------------------|
+| duration      | float   | Connection duration in seconds           | > 0                 |
+| src_bytes     | int     | Bytes sent from source                   | ≥ 0                 |
+| dst_bytes     | int     | Bytes sent from destination              | ≥ 0                 |
+| packet_count  | int     | Number of packets in connection          | > 0                 |
+| hour          | int     | Hour of the day                          | 0–23                |
+| protocol      | string  | Network protocol                         | TCP, UDP, ICMP      |
+| service       | string  | Application service type                 | http, ftp, ssh, etc.|
 
-| Field | Type | Description | Valid Range/Values |
-|-------|------|-------------|-------------------|
-| duration | float | Connection duration in seconds | > 0 |
-| src_bytes | integer | Data volume sent by source | ≥ 0 |
-| dst_bytes | integer | Data volume received by destination | ≥ 0 |
-| packet_count | integer | Number of packets in connection | > 0 |
-| hour | integer | Hour when connection occurred | 0-23 |
-| protocol | string | Network protocol used | "TCP", "UDP", "ICMP" |
-| service | string | Application service type | "http", "ftp", "ssh", "smtp", "dns", etc. |
+## 🖥️ Usage
 
-### Common Service Types
-- **Web Services**: http, https
-- **File Transfer**: ftp, sftp
-- **Email**: smtp, pop3, imap
-- **Remote Access**: ssh, telnet
-- **Name Resolution**: dns
-- **Database**: mysql, postgresql
-- **Streaming**: rtsp, rtp
-
-## Usage
-
-### Web Dashboard
-Once the app is running, navigate to `http://127.0.0.1:5000/dashboard` in your web browser to use the interactive prediction form.
+### Web Interface
+- **Introduction Page**: Visit [http://127.0.0.1:5000](http://127.0.0.1:5000) for an overview of the application.
+- **Dashboard**: Navigate to [http://127.0.0.1:5000/dashboard](http://127.0.0.1:5000/dashboard) to use the interactive form and see live prediction charts.
 
 ### API Endpoint
-You can also make predictions by sending a POST request to the `/api/predict` endpoint.
+Send a POST request to `/api/predict`:
 
-**Example using `curl`:**
 ```bash
 curl -X POST http://127.0.0.1:5000/api/predict \
      -H "Content-Type: application/json" \
@@ -145,7 +114,8 @@ curl -X POST http://127.0.0.1:5000/api/predict \
           "service": "http"
      }'
 ```
-**Expected Response:**
+
+**Sample Response:**
 ```json
 {
   "congestion": true,
@@ -153,47 +123,16 @@ curl -X POST http://127.0.0.1:5000/api/predict \
 }
 ```
 
-**Example using Python requests:**
-```python
-import requests
-import json
-
-# API endpoint
-url = "http://127.0.0.1:5000/api/predict"
-
-# Sample network traffic data
-data = {
-    "duration": 10.5,
-    "src_bytes": 5120,
-    "dst_bytes": 2400,
-    "packet_count": 65,
-    "hour": 9,
-    "protocol": "TCP",
-    "service": "http"
-}
-
-# Make prediction request
-response = requests.post(url, json=data)
-result = response.json()
-
-print(f"Congestion Predicted: {result['congestion']}")
-print(f"Probability: {result['probability']:.2f}")
-```
-
-**Expected Output:**
-```
-Congestion Predicted: True
-Probability: 0.87
-```
-
 ## ⚙️ Configuration
-The core training logic is configured via `core/config.yaml`. Here you can adjust:
+
+Edit `core/config.yaml` to adjust:
 - Model hyperparameters (`model_params`)
-- Feature selection parameters (`feature_selection_k`)
-- The grid for hyperparameter search (`grid_search_params`)
+- Feature selection (`feature_selection_k`)
+- Hyperparameter search grid (`grid_search_params`)
 
 ## ✅ Testing
-Run the full suite of unit and integration tests using `pytest`.
+
+Run all tests with:
 ```bash
 pytest
 ``` 

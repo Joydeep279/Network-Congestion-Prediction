@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="jumbotron text-center" style="background-color: #e9ecef; margin-top: 50px; border-radius: 15px;">
+    <h1 class="display-4">🚦 Network Traffic Congestion Predictor</h1>
+    <p class="lead">
+        A real-time machine learning application to predict network traffic congestion before it happens.
+    </p>
+    <hr class="my-4">
+    <p>
+        Use our interactive dashboard to get live predictions based on network traffic data.
+    </p>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('dashboard') }}" role="button">
+        Go to Dashboard &raquo;
+    </a>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <h5 class="card-title">🚀 Real-Time Predictions</h5>
+                <p class="card-text">Input network parameters and get instant congestion predictions with clear probability scores.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <h5 class="card-title">📈 Interactive Charts</h5>
+                <p class="card-text">Visualize prediction results with dynamic, easy-to-understand donut charts.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <h5 class="card-title">🤖 Powered by ML</h5>
+                <p class="card-text">Built on a robust Scikit-learn pipeline for accurate and reliable forecasting.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
