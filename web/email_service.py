@@ -44,9 +44,13 @@ class EmailService:
             <p>High probability of network congestion detected:</p>
             <ul>
                 <li>Probability: {prediction_data['probability']:.2%}</li>
-                <li>Connection Duration: {prediction_data['features']['conn_duration']}</li>
-                <li>Source Bytes: {prediction_data['features']['src_bytes']}</li>
-                <li>Peak Hour: {'Yes' if prediction_data['features']['peak_hour_flag'] else 'No'}</li>
+                <li>Duration: {prediction_data.get('duration', 'N/A')}</li>
+                <li>Source Bytes: {prediction_data.get('src_bytes', 'N/A')}</li>
+                <li>Destination Bytes: {prediction_data.get('dst_bytes', 'N/A')}</li>
+                <li>Packet Count: {prediction_data.get('packet_count', 'N/A')}</li>
+                <li>Hour: {prediction_data.get('hour', 'N/A')}</li>
+                <li>Protocol: {prediction_data.get('protocol', 'N/A')}</li>
+                <li>Service: {prediction_data.get('service', 'N/A')}</li>
             </ul>
             """
 

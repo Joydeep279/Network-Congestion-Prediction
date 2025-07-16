@@ -46,7 +46,7 @@ def run_web_app():
         env["FLASK_APP"] = "web/app.py"
         env["FLASK_ENV"] = "development"
         subprocess.run(
-            [sys.executable, "-m", "flask", "run"],
+            [sys.executable, "-m", "flask", "run", "--port", "5000"],
             check=True,
             env=env,
         )

@@ -21,3 +21,13 @@ body {
     bottom: 0;
     width: 100%;
 }
+
+.chart-container {
+    position: relative;
+    margin: auto;
+    height: 40vh;
+    width: 100%;
+    max-width: 450px;
+    max-height: 450px;
+    margin-top: 20px;
+}

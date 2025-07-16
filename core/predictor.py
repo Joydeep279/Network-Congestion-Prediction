@@ -48,6 +48,18 @@ class TrafficPredictor:
         try:
             df = pd.DataFrame([input_data])
 
+            # Ensure columns are in the same order as during training
+            feature_order = [
+                "duration",
+                "src_bytes",
+                "dst_bytes",
+                "packet_count",
+                "hour",
+                "protocol",
+                "service",
+            ]
+            df = df[feature_order]
+
             # The pipeline handles all preprocessing and prediction
             prediction = self.pipeline.predict(df)[0]
             probability = self.pipeline.predict_proba(df)[0][1]
